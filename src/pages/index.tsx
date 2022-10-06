@@ -85,7 +85,7 @@ const Home: NextPage<IHomeProps> = ({
   return (
     <>
       <Head>
-        <title>{`Bike Search ${
+        <title>{`Bike Search${
           searchText ? ` for '${searchText}'` : ''
         }`}</title>
       </Head>
