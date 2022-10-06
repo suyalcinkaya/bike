@@ -51,7 +51,7 @@ const BikeDetails: NextPage<IBikeDetailsProps> = (props) => {
   return (
     <>
       <Head>
-        <title>Bike Details - {bike.id}</title>
+        <title>{`Bike Details - ${bike.id}`}</title>
       </Head>
       <div className="flex flex-col items-start gap-8">
         <button className="btn" onClick={() => router.back()}>

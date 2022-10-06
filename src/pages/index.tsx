@@ -82,7 +82,7 @@ const Home: NextPage<IHomeProps> = ({
   return (
     <>
       <Head>
-        <title>Bike Search {searchText && ` for '${searchText}'`}</title>
+        <title>{`Bike Search ${searchText && ` for '${searchText}'`}`}</title>
       </Head>
       <div className="flex flex-col gap-8">
         <SearchInput defaultValue={searchText} onFormSubmit={onFormSubmit} />
