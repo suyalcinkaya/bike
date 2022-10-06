@@ -40,17 +40,19 @@ const Home: NextPage<IHomeProps> = ({
   const [searchText, setSearchText] = useState<string>(initialLocation)
 
   useEffect(() => {
-    router.push(
-      {
-        pathname: '/',
-        query: {
-          location: searchText,
-          page: currentPage
-        }
-      },
-      undefined,
-      { shallow: true }
-    )
+    if (searchText && currentPage) {
+      router.push(
+        {
+          pathname: '/',
+          query: {
+            location: searchText,
+            page: currentPage
+          }
+        },
+        undefined,
+        { shallow: true }
+      )
+    }
   }, [searchText, currentPage])
 
   const DynamicError = dynamic(() => import('next/error'))
