@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 
@@ -40,19 +41,17 @@ const Home: NextPage<IHomeProps> = ({
   const [searchText, setSearchText] = useState<string>(initialLocation)
 
   useEffect(() => {
-    if (searchText) {
-      router.push(
-        {
-          pathname: '/',
-          query: {
-            location: searchText,
-            page: currentPage
-          }
-        },
-        undefined,
-        { shallow: true }
-      )
-    }
+    router.push(
+      {
+        pathname: '/',
+        query: {
+          location: searchText,
+          page: currentPage
+        }
+      },
+      undefined,
+      { shallow: true }
+    )
   }, [searchText, currentPage])
 
   const DynamicError = dynamic(() => import('next/error'))
@@ -81,18 +80,23 @@ const Home: NextPage<IHomeProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <SearchInput defaultValue={searchText} onFormSubmit={onFormSubmit} />
-      {searchText && (
-        <BikeList
-          searchText={searchText}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          initialBikesData={initialBikesData}
-          initialCountData={initialCountData}
-        />
-      )}
-    </div>
+    <>
+      <Head>
+        <title>Bike Search {searchText && ` for '${searchText}'`}</title>
+      </Head>
+      <div className="flex flex-col gap-8">
+        <SearchInput defaultValue={searchText} onFormSubmit={onFormSubmit} />
+        {searchText && (
+          <BikeList
+            searchText={searchText}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            initialBikesData={initialBikesData}
+            initialCountData={initialCountData}
+          />
+        )}
+      </div>
+    </>
   )
 }
 
@@ -106,8 +110,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
   }
 
-  const pageQueryParam = page || DEFAULT_PAGE
   const locationQueryParam = location || DEFAULT_LOCATION
+  // Reset the `page` query parameter if the `location` query paremeter does not present
+  const pageQueryParam = location && page ? page : DEFAULT_PAGE
 
   const [bikesDataRes, countDataRes] = await Promise.all([
     fetch(
