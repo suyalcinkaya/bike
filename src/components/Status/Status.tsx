@@ -1,3 +1,4 @@
+// --- Types
 import { IStatusProps } from 'components/Status/Status.types'
 
 const Status = ({ status }: IStatusProps) => {

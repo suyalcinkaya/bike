@@ -1,40 +1,64 @@
-import Image from 'next/image'
 import { useRouter } from 'next/router'
+import dynamic from 'next/dynamic'
+import Link from 'next/link'
+import useSWR from 'swr'
 
+// --- Components
 import Status from 'components/Status/Status'
+import Pagination from 'components/Pagination/Pagination'
 
 // --- Types
-import { IBikeListProps } from 'components/BikeList/BikeList.types'
+import { IBikeListProps, IBike } from 'components/BikeList/BikeList.types'
 
-const BikeList = (props: IBikeListProps) => {
+// --- Others
+import { fetcher } from 'utils/utils'
+
+const BikeList = ({
+  initialBikesData,
+  initialCountData,
+  searchText,
+  currentPage,
+  setCurrentPage
+}: IBikeListProps) => {
   const router = useRouter()
 
+  /**
+   * The `location` parameter is ignored unless `stolenness` parameter is "proximity"
+   * See: https://bikeindex.org/documentation/api_v3#!/search/GET_version_search_format_get_0
+   */
   const {
-    bikes,
-    currentPage,
-    setCurrentPage,
-    startItems,
-    endItems,
-    totalItems
-  } = props
-
-  if (bikes.length === 0) return <div>No data found!</div>
-
-  const handleClick = (bikeId: number) => {
-    router.push(`bike/${bikeId}`)
-  }
-
-  const onPreviousClick = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prevPage: number) => prevPage - 1)
+    data: bikesData,
+    isValidating,
+    error: bikesFetchError
+  } = useSWR<{ bikes: IBike[]; error?: string }, Error>(
+    searchText
+      ? `${
+          process.env.NEXT_PUBLIC_SEARCH_API
+        }?page=${currentPage}&per_page=25&stolenness=proximity&location=${encodeURIComponent(
+          searchText
+        )}`
+      : null,
+    fetcher,
+    {
+      fallbackData: initialBikesData,
+      revalidateOnMount: true
     }
+  )
+
+  console.log('isValidating', isValidating)
+
+  const DynamicError = dynamic(() => import('next/error'))
+  if (bikesFetchError || bikesData?.error) {
+    return (
+      <DynamicError
+        statusCode={400}
+        title={bikesFetchError?.message || bikesData?.error}
+      />
+    )
   }
 
-  const onNextClick = () => {
-    if (endItems !== totalItems) {
-      setCurrentPage((prevPage: number) => prevPage + 1)
-    }
-  }
+  if (bikesData?.bikes?.length === 0 && !isValidating)
+    return <div>No data found!</div>
 
   return (
     <div className="overflow-x-auto relative border sm:rounded-lg">
@@ -44,65 +68,72 @@ const BikeList = (props: IBikeListProps) => {
             <th scope="col">Title</th>
             <th scope="col">Serial</th>
             <th scope="col">Status</th>
-            <th scope="col">
+            {/* <th scope="col">
               <span className="sr-only">Icon</span>
-            </th>
+            </th> */}
           </tr>
         </thead>
         <tbody>
-          {bikes.map((bike) => (
+          {!bikesData && (
+            <tr>
+              <td className="w-3/6">
+                <div role="status" className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded-full"></div>
+                  <span className="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td className="w-2/6">
+                <div role="status" className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded-full"></div>
+                  <span className="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td className="w-1/6">
+                <div role="status" className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded-full"></div>
+                  <span className="sr-only">Loading...</span>
+                </div>
+              </td>
+            </tr>
+          )}
+          {bikesData?.bikes.map((bike) => (
             <tr
               key={bike.id}
               className="bg-white border-b hover:bg-gray-50 hover:cursor-pointer transition-colors"
-              onClick={() => handleClick(bike.id)}
+              onClick={() => router.push(`/bike/${bike.id}`)}
+              onMouseEnter={() => router.prefetch(`/bike/${bike.id}`)} // Prefetch on hover
             >
               <td className="font-medium whitespace-nowrap">{bike.title}</td>
               <td>{bike.serial}</td>
               <td>
                 <Status status={bike.status} />
               </td>
-              <td>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                  />
-                </svg>
-              </td>
+              {/* <td>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                    />
+                  </svg>
+                </td> */}
             </tr>
           ))}
         </tbody>
       </table>
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between py-4 px-6 text-sm">
-        <span>
-          Showing <b>{startItems}</b> to <b>{endItems}</b> of{' '}
-          <b>{totalItems}</b> results
-        </span>
-        <div className="flex gap-4">
-          <button
-            className="btn"
-            onClick={onPreviousClick}
-            disabled={currentPage <= 1}
-          >
-            Previous
-          </button>
-          <button
-            className="btn"
-            onClick={onNextClick}
-            disabled={endItems === totalItems}
-          >
-            Next
-          </button>
-        </div>
-      </div>
+      <Pagination
+        initialCountData={initialCountData}
+        searchText={searchText}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+      />
     </div>
   )
 }

@@ -1,7 +1,6 @@
-import { useCallback } from 'react'
+import { Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
-import Error from 'next/error'
 
 // --- Components
 import Status from 'components/Status/Status'
@@ -9,17 +8,44 @@ import Spec from 'components/Spec/Spec'
 
 // --- Types
 import type { NextPage, GetServerSideProps } from 'next'
-import { IBikeDetailsProps } from 'pages/bike/BikeDetails.types'
+import type { TStatus } from 'components/Status/Status.types'
+
+interface IBikeDetailsProps {
+  bike?: {
+    description?: string
+    frame_colors: string[]
+    frame_model: string
+    id: number
+    large_img?: string
+    location_found?: string
+    manufacturer_name: string
+    serial: string
+    status: TStatus
+    stolen_location: string
+    title: string
+    year?: number
+    frame_material_slug?: string
+  }
+  error: {
+    errorCode: number
+    errorMessage: string
+  }
+}
 
 const BikeDetails: NextPage<IBikeDetailsProps> = (props) => {
   const router = useRouter()
   const { bike, error } = props
 
+  const DynamicError = dynamic(() => import('next/error'))
   if (error || !bike) {
-    return <Error statusCode={error?.errorCode} title={error?.errorMessage} />
+    return (
+      <DynamicError statusCode={error?.errorCode} title={error?.errorMessage} />
+    )
   }
 
-  const DynamicImage = dynamic(() => import('next/image'))
+  const DynamicImage = dynamic(() => import('next/image'), {
+    suspense: true
+  })
 
   return (
     <div className="flex flex-col items-start gap-8">
@@ -45,13 +71,19 @@ const BikeDetails: NextPage<IBikeDetailsProps> = (props) => {
         <Status status={bike.status} />
       </div>
       {bike.large_img && (
-        <div className="flex border rounded-lg">
-          <DynamicImage
-            src={bike.large_img}
-            alt={bike.title}
-            width={1200}
-            height={900}
-          />
+        <div className="flex border rounded-lg w-full h-full aspect-[4/3]">
+          <Suspense
+            fallback={<div className="animate-pulse bg-gray-100 w-full" />}
+          >
+            <DynamicImage
+              src={bike.large_img}
+              alt={bike.title}
+              width={1200}
+              height={900}
+              quality={50}
+              priority
+            />
+          </Suspense>
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 w-full">

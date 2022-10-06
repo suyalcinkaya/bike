@@ -1,6 +1,8 @@
+// --- Types
 import { ISpecProps } from 'components/Spec/Spec.types'
 
-const Spec = ({ title, value, className }: ISpecProps) => {
+const Spec = (props: ISpecProps) => {
+  const { title, value, className } = props
   if (!value) return null
 
   return (

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef } from 'react'
 
 // --- Types
 import { ISearchInputProps } from 'components/SearchInput/SearchInput.types'
@@ -17,7 +17,7 @@ function SearchInput({
 
   return (
     <form onSubmit={onSubmit}>
-      <label htmlFor="default-search" className="text-sm font-semibold">
+      <label htmlFor="city-search" className="text-sm font-semibold">
         City
       </label>
       <div className="relative mt-2">
@@ -46,7 +46,8 @@ function SearchInput({
         <input
           ref={cityInput}
           type="search"
-          name="citySearch"
+          id="city-search"
+          name="city-search"
           className="input"
           placeholder="Amsterdam, Berlin, etc."
           required
