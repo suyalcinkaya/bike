@@ -71,7 +71,7 @@ const BikeDetails: NextPage<IBikeDetailsProps> = (props) => {
           </svg>
           <span>Back</span>
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
           <h1>{bike.title}</h1>
           <Status status={bike.status} />
         </div>
