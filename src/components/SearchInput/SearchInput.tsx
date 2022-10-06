@@ -3,11 +3,11 @@ import { useRef } from 'react'
 // --- Types
 import { ISearchInputProps } from 'components/SearchInput/SearchInput.types'
 
-function SearchInput({
+const SearchInput = ({
   defaultValue,
   onFormSubmit,
   isDisabled
-}: ISearchInputProps) {
+}: ISearchInputProps) => {
   const cityInput = useRef<HTMLInputElement>(null)
 
   const onSubmit = (event: React.SyntheticEvent) => {

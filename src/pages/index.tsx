@@ -5,7 +5,6 @@ import { useRouter } from 'next/router'
 
 // --- Components
 import SearchInput from 'components/SearchInput/SearchInput'
-import BikeList from 'components/BikeList/BikeList'
 
 // --- Types
 import type { NextPage, GetServerSideProps } from 'next'
@@ -79,6 +78,8 @@ const Home: NextPage<IHomeProps> = ({
     if (searchText !== value) setCurrentPage(DEFAULT_PAGE)
   }
 
+  const DynamicBikeList = dynamic(() => import('components/BikeList/BikeList'))
+
   return (
     <>
       <Head>
@@ -87,7 +88,7 @@ const Home: NextPage<IHomeProps> = ({
       <div className="flex flex-col gap-8">
         <SearchInput defaultValue={searchText} onFormSubmit={onFormSubmit} />
         {searchText && (
-          <BikeList
+          <DynamicBikeList
             searchText={searchText}
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
@@ -103,7 +104,7 @@ const Home: NextPage<IHomeProps> = ({
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { location, page } = context?.query
 
-  // Return empty props if the query is empty
+  // Return empty props if the query parameters do not present
   if (!location && !page) {
     return {
       props: {}

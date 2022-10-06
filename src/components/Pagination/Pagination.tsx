@@ -1,3 +1,4 @@
+import dynamic from 'next/dynamic'
 import useSWR from 'swr'
 
 // --- Types
@@ -45,18 +46,18 @@ const Pagination = ({
     }
   }
 
+  const DynamicSkeleton = dynamic(() => import('components/Skeleton/Skeleton'))
+
   return (
     <div className="flex flex-col md:flex-row gap-4 items-center justify-between py-4 px-6 text-sm">
       {countDataFetchError && <>{countDataFetchError}</>}
       {(!countData || isValidating) && (
         <>
-          <div role="status" className="animate-pulse w-1/5">
-            <div className="h-4 bg-gray-200 rounded-full"></div>
-            <span className="sr-only">Loading...</span>
+          <div className="w-1/5">
+            <DynamicSkeleton />
           </div>
-          <div role="status" className="animate-pulse w-1/5">
-            <div className="h-4 bg-gray-200 rounded-full"></div>
-            <span className="sr-only">Loading...</span>
+          <div className="w-1/5">
+            <DynamicSkeleton />
           </div>
         </>
       )}

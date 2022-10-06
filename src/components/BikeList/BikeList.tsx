@@ -57,6 +57,8 @@ const BikeList = ({
   if (bikesData?.bikes?.length === 0 && !isValidating)
     return <div>No data found!</div>
 
+  const DynamicSkeleton = dynamic(() => import('components/Skeleton/Skeleton'))
+
   return (
     <div className="overflow-x-auto relative border sm:rounded-lg">
       <table className="w-full text-sm text-left">
@@ -65,31 +67,19 @@ const BikeList = ({
             <th scope="col">Title</th>
             <th scope="col">Serial</th>
             <th scope="col">Status</th>
-            {/* <th scope="col">
-              <span className="sr-only">Icon</span>
-            </th> */}
           </tr>
         </thead>
         <tbody>
           {(!bikesData || isValidating) && (
             <tr>
               <td className="w-3/6">
-                <div role="status" className="animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded-full"></div>
-                  <span className="sr-only">Loading...</span>
-                </div>
+                <DynamicSkeleton />
               </td>
               <td className="w-2/6">
-                <div role="status" className="animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded-full"></div>
-                  <span className="sr-only">Loading...</span>
-                </div>
+                <DynamicSkeleton />
               </td>
               <td className="w-1/6">
-                <div role="status" className="animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded-full"></div>
-                  <span className="sr-only">Loading...</span>
-                </div>
+                <DynamicSkeleton />
               </td>
             </tr>
           )}
@@ -106,22 +96,6 @@ const BikeList = ({
                 <td>
                   <Status status={bike.status} />
                 </td>
-                {/* <td>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="w-4 h-4"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                    />
-                  </svg>
-                </td> */}
               </tr>
             ))}
         </tbody>
