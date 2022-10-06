@@ -7,3 +7,5 @@ export async function fetcher<JSON = any>(
 }
 
 export const ITEMS_PER_PAGE = 25
+export const DEFAULT_PAGE = 1
+export const DEFAULT_LOCATION = 'IP'

@@ -11,6 +11,9 @@ import type { NextPage, GetServerSideProps } from 'next'
 import { IBike } from 'components/BikeList/BikeList.types'
 import { IInitialCountData } from 'components/Pagination/Pagination.types'
 
+// --- Others
+import { DEFAULT_PAGE, DEFAULT_LOCATION } from 'utils/utils'
+
 export interface IInitialBikesData {
   bikes: IBike[]
 }
@@ -74,39 +77,51 @@ const Home: NextPage<IHomeProps> = ({
   const onFormSubmit = (value: string) => {
     setSearchText(value)
     // Reset the `currentPage` on form submit if the `searchText` has changed
-    if (searchText !== value) setCurrentPage(1)
+    if (searchText !== value) setCurrentPage(DEFAULT_PAGE)
   }
 
   return (
     <div className="flex flex-col gap-8">
       <SearchInput defaultValue={searchText} onFormSubmit={onFormSubmit} />
-      <BikeList
-        searchText={searchText}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        initialBikesData={initialBikesData}
-        initialCountData={initialCountData}
-      />
+      {searchText && (
+        <BikeList
+          searchText={searchText}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          initialBikesData={initialBikesData}
+          initialCountData={initialCountData}
+        />
+      )}
     </div>
   )
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { location = 'IP', page = 1 } = context?.query
+  const { location, page } = context?.query
+
+  // Return empty props if the query is empty
+  if (!location && !page) {
+    return {
+      props: {}
+    }
+  }
+
+  const pageQueryParam = page || DEFAULT_PAGE
+  const locationQueryParam = location || DEFAULT_LOCATION
 
   const [bikesDataRes, countDataRes] = await Promise.all([
     fetch(
       `${
         process.env.NEXT_PUBLIC_SEARCH_API
-      }?page=${page}&per_page=25&stolenness=proximity&location=${encodeURIComponent(
-        location as string
+      }?page=${pageQueryParam}&per_page=25&stolenness=proximity&location=${encodeURIComponent(
+        locationQueryParam as string
       )}`
     ),
     fetch(
       `${
         process.env.NEXT_PUBLIC_COUNT_API
-      }?page=${page}&per_page=25&stolenness=proximity&location=${encodeURIComponent(
-        location as string
+      }?page=${pageQueryParam}&per_page=25&stolenness=proximity&location=${encodeURIComponent(
+        locationQueryParam as string
       )}`
     )
   ])
@@ -136,8 +151,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       countError: countDataRes.ok
         ? null
         : { errorCode: countDataRes.status, errorMessage: countError },
-      initialLocation: location,
-      initialPage: page
+      initialLocation: locationQueryParam,
+      initialPage: Number(pageQueryParam)
     }
   }
 }

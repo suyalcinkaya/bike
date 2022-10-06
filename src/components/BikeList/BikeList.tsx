@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
-import Link from 'next/link'
 import useSWR from 'swr'
 
 // --- Components
@@ -45,8 +44,6 @@ const BikeList = ({
     }
   )
 
-  console.log('isValidating', isValidating)
-
   const DynamicError = dynamic(() => import('next/error'))
   if (bikesFetchError || bikesData?.error) {
     return (
@@ -74,7 +71,7 @@ const BikeList = ({
           </tr>
         </thead>
         <tbody>
-          {!bikesData && (
+          {(!bikesData || isValidating) && (
             <tr>
               <td className="w-3/6">
                 <div role="status" className="animate-pulse">
@@ -96,19 +93,20 @@ const BikeList = ({
               </td>
             </tr>
           )}
-          {bikesData?.bikes.map((bike) => (
-            <tr
-              key={bike.id}
-              className="bg-white border-b hover:bg-gray-50 hover:cursor-pointer transition-colors"
-              onClick={() => router.push(`/bike/${bike.id}`)}
-              onMouseEnter={() => router.prefetch(`/bike/${bike.id}`)} // Prefetch on hover
-            >
-              <td className="font-medium whitespace-nowrap">{bike.title}</td>
-              <td>{bike.serial}</td>
-              <td>
-                <Status status={bike.status} />
-              </td>
-              {/* <td>
+          {!isValidating &&
+            bikesData?.bikes.map((bike) => (
+              <tr
+                key={bike.id}
+                className="bg-white border-b hover:bg-gray-50 hover:cursor-pointer transition-colors"
+                onClick={() => router.push(`/bike/${bike.id}`)}
+                onMouseEnter={() => router.prefetch(`/bike/${bike.id}`)} // Prefetch on hover
+              >
+                <td className="font-medium whitespace-nowrap">{bike.title}</td>
+                <td>{bike.serial}</td>
+                <td>
+                  <Status status={bike.status} />
+                </td>
+                {/* <td>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -124,8 +122,8 @@ const BikeList = ({
                     />
                   </svg>
                 </td> */}
-            </tr>
-          ))}
+              </tr>
+            ))}
         </tbody>
       </table>
       <Pagination
