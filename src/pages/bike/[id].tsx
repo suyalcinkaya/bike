@@ -1,7 +1,11 @@
 import { Suspense } from 'react'
 import Head from 'next/head'
-import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
+import dynamic from 'next/dynamic'
+const DynamicError = dynamic(() => import('next/error'))
+const DynamicImage = dynamic(() => import('next/image'), {
+  suspense: true
+})
 
 // --- Components
 import Status from 'components/Status/Status'
@@ -37,16 +41,11 @@ const BikeDetails: NextPage<IBikeDetailsProps> = (props) => {
   const router = useRouter()
   const { bike, error } = props
 
-  const DynamicError = dynamic(() => import('next/error'))
   if (error || !bike) {
     return (
       <DynamicError statusCode={error?.errorCode} title={error?.errorMessage} />
     )
   }
-
-  const DynamicImage = dynamic(() => import('next/image'), {
-    suspense: true
-  })
 
   return (
     <>
