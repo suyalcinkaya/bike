@@ -11,7 +11,7 @@ import {
 } from 'components/Pagination/Pagination.types'
 
 // --- Others
-import { fetcher, ITEMS_PER_PAGE } from 'utils/utils'
+import { ITEMS_PER_PAGE } from 'utils/utils'
 
 const Pagination = ({
   initialCountData,
@@ -19,15 +19,10 @@ const Pagination = ({
   currentPage,
   setCurrentPage
 }: IPaginationProps) => {
-  const {
-    data: countData,
-    isValidating,
-    error: countDataFetchError
-  } = useSWR<IInitialCountData, Error>(
+  const { data: countData, isValidating } = useSWR<IInitialCountData, Error>(
     `${
       process.env.NEXT_PUBLIC_COUNT_API
     }?stolenness=proximity&location=${encodeURIComponent(searchText)}`,
-    fetcher,
     {
       fallbackData: initialCountData
     }
@@ -51,7 +46,6 @@ const Pagination = ({
 
   return (
     <div className="flex flex-col md:flex-row gap-4 items-center justify-between py-4 px-6 text-sm">
-      {countDataFetchError && <>{countDataFetchError}</>}
       {(!countData || isValidating) && (
         <>
           <div className="w-1/5">

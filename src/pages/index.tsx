@@ -67,7 +67,7 @@ const Home: NextPage<IHomeProps> = ({
       </Head>
       <div className="flex flex-col gap-8">
         <SearchInput defaultValue={searchText} onFormSubmit={onFormSubmit} />
-        {searchText && (
+        {searchText && currentPage && (
           <DynamicBikeList
             searchText={searchText}
             currentPage={currentPage}

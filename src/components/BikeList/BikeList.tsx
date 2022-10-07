@@ -1,7 +1,7 @@
-import { useRouter } from 'next/router'
+import { Fragment } from 'react'
 import dynamic from 'next/dynamic'
 import useSWR from 'swr'
-const DynamicError = dynamic(() => import('next/error'))
+const DynamicLink = dynamic(() => import('next/link'))
 
 // --- Components
 import Status from 'components/Status/Status'
@@ -11,9 +11,6 @@ const DynamicSkeleton = dynamic(() => import('components/Skeleton/Skeleton'))
 // --- Types
 import { IBikeListProps, IBike } from 'components/BikeList/BikeList.types'
 
-// --- Others
-import { fetcher } from 'utils/utils'
-
 const BikeList = ({
   initialBikesData,
   initialCountData,
@@ -21,91 +18,100 @@ const BikeList = ({
   currentPage,
   setCurrentPage
 }: IBikeListProps) => {
-  const router = useRouter()
-
   /**
    * The `location` parameter is ignored unless `stolenness` parameter is "proximity"
    * See: https://bikeindex.org/documentation/api_v3#!/search/GET_version_search_format_get_0
    */
-  const {
-    data: bikesData,
-    isValidating,
-    error: bikesFetchError
-  } = useSWR<{ bikes: IBike[]; error?: string }, Error>(
-    searchText
-      ? `${
-          process.env.NEXT_PUBLIC_SEARCH_API
-        }?page=${currentPage}&per_page=25&stolenness=proximity&location=${encodeURIComponent(
-          searchText
-        )}`
-      : null,
-    fetcher,
+  const { data: bikesData, isValidating } = useSWR<{ bikes: IBike[] }, Error>(
+    `${
+      process.env.NEXT_PUBLIC_SEARCH_API
+    }?page=${currentPage}&per_page=25&stolenness=proximity&location=${encodeURIComponent(
+      searchText
+    )}`,
     {
-      fallbackData: initialBikesData,
-      revalidateOnMount: true
+      fallbackData: initialBikesData
     }
   )
 
-  if (bikesFetchError || bikesData?.error) {
+  if (bikesData?.bikes?.length === 0 && !isValidating) {
     return (
-      <DynamicError
-        statusCode={400}
-        title={bikesFetchError?.message || bikesData?.error}
-      />
+      <div className="grid place-items-center gap-2">
+        <p>No data found. Try to type another city.</p>
+      </div>
     )
   }
 
-  if (bikesData?.bikes?.length === 0 && !isValidating)
-    return <div>No data found!</div>
-
   return (
-    <div className="overflow-x-auto relative border sm:rounded-lg">
-      <table className="w-full text-sm text-left">
-        <thead className="bg-gray-100">
-          <tr>
-            <th scope="col">Title</th>
-            <th scope="col">Serial</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(!bikesData || isValidating) && (
-            <tr>
-              <td className="w-3/6">
-                <DynamicSkeleton />
-              </td>
-              <td className="w-2/6">
-                <DynamicSkeleton />
-              </td>
-              <td className="w-1/6">
-                <DynamicSkeleton />
-              </td>
-            </tr>
-          )}
-          {!isValidating &&
-            bikesData?.bikes.map((bike) => (
-              <tr
-                key={bike.id}
-                className="bg-white border-b hover:bg-gray-50 hover:cursor-pointer transition-colors"
-                onClick={() => router.push(`/bike/${bike.id}`)}
-                onMouseEnter={() => router.prefetch(`/bike/${bike.id}`)} // Prefetch on hover
+    <>
+      <div className="flex flex-col overflow-hidden bg-white md:rounded-lg border md:border-gray-200 -mx-8 md:mx-0">
+        {isValidating && (
+          <div className="flex flex-col gap-10 p-6">
+            <DynamicSkeleton />
+            <DynamicSkeleton />
+            <DynamicSkeleton />
+          </div>
+        )}
+        {!isValidating &&
+          bikesData?.bikes.map((bike) => (
+            <Fragment key={bike.id}>
+              <DynamicLink
+                href={`/bike/${bike.id}`}
+                className="grid grid-cols-10 items-center py-4 px-6 bg-white text-sm border-b last:border-none hover:bg-gray-50 hover:cursor-pointer transition-colors"
               >
-                <td className="font-medium whitespace-nowrap">{bike.title}</td>
-                <td>{bike.serial}</td>
-                <td>
+                <span className="col-span-6 lg:col-span-4">
+                  <span className="line-clamp-1 font-semibold">
+                    {bike.title}
+                  </span>
+                </span>
+                <span className="hidden lg:block lg:col-span-3">
+                  <span className="flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z"
+                      />
+                    </svg>
+                    <span className="line-clamp-1">{bike.serial}</span>
+                  </span>
+                </span>
+                <span className="col-span-4 lg:col-span-2 justify-self-end">
                   <Status status={bike.status} />
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
-      <Pagination
-        initialCountData={initialCountData}
-        searchText={searchText}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-      />
-    </div>
+                </span>
+                <span className="hidden lg:block lg:col-span-1 justify-self-end">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="w-4 h-4 text-gray-400"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                    />
+                  </svg>
+                </span>
+              </DynamicLink>
+            </Fragment>
+          ))}
+        <Pagination
+          initialCountData={initialCountData}
+          searchText={searchText}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
+      </div>
+    </>
   )
 }
 

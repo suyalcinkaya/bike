@@ -1,3 +1,4 @@
+import { SWRConfig } from 'swr'
 import dynamic from 'next/dynamic'
 const DynamicErrorPage = dynamic(() => import('next/error'))
 
@@ -7,7 +8,8 @@ import PageLayout from 'layouts/PageLayout'
 // --- Types
 import type { AppProps } from 'next/app'
 
-// --- Styles
+// --- Others
+import { fetcher } from 'utils/utils'
 import 'styles/global.css'
 
 interface CustomPageProps {
@@ -28,9 +30,17 @@ function MyApp({ Component, pageProps }: AppProps<CustomPageProps>) {
   }
 
   return (
-    <PageLayout>
-      <Component {...pageProps} />
-    </PageLayout>
+    <SWRConfig
+      value={{
+        fetcher,
+        onError: (error) => <DynamicErrorPage statusCode={error.status} />,
+        revalidateOnFocus: false
+      }}
+    >
+      <PageLayout>
+        <Component {...pageProps} />
+      </PageLayout>
+    </SWRConfig>
   )
 }
 
