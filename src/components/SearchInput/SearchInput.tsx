@@ -1,5 +1,3 @@
-import { useRef } from 'react'
-
 // --- Types
 import { ISearchInputProps } from 'components/SearchInput/SearchInput.types'
 
@@ -8,19 +6,20 @@ const SearchInput = ({
   onFormSubmit,
   isDisabled
 }: ISearchInputProps) => {
-  const cityInput = useRef<HTMLInputElement>(null)
-
   const onSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault()
-    if (cityInput?.current?.value) onFormSubmit(cityInput.current.value)
+    const formData = new FormData(event.target as HTMLFormElement)
+    const data = Object.fromEntries(formData)
+    const { search } = data
+    onFormSubmit(search as string)
   }
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} className="flex flex-col gap-2">
       <label htmlFor="city-search" className="text-sm font-semibold">
         City
       </label>
-      <div className="relative mt-2">
+      <div className="relative">
         <div className="flex absolute inset-y-0 left-0 items-center pl-4 pointer-events-none">
           <svg
             aria-hidden="true"
@@ -44,10 +43,9 @@ const SearchInput = ({
           </svg>
         </div>
         <input
-          ref={cityInput}
           type="search"
           id="city-search"
-          name="city-search"
+          name="search"
           className="input"
           placeholder="Amsterdam, Berlin, etc."
           required
