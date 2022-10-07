@@ -54,3 +54,12 @@
     @apply block p-4 pl-12 w-full text-sm bg-white rounded-lg border border-gray-300 enabled:focus:ring-blue-500 enabled:focus:border-blue-500 disabled:opacity-50 disabled:bg-gray-50;
   }
 }
+
+@layer utilities {
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+}
