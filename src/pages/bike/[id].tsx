@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
-const DynamicError = dynamic(() => import('next/error'))
 const DynamicImage = dynamic(() => import('next/image'), {
   suspense: true
 })
@@ -16,7 +15,7 @@ import type { NextPage, GetServerSideProps } from 'next'
 import type { TStatus } from 'components/Status/Status.types'
 
 interface IBikeDetailsProps {
-  bike?: {
+  bike: {
     description?: string
     frame_colors: string[]
     frame_model: string
@@ -31,21 +30,10 @@ interface IBikeDetailsProps {
     year?: number
     frame_material_slug?: string
   }
-  error: {
-    errorCode: number
-    errorMessage: string
-  }
 }
 
-const BikeDetails: NextPage<IBikeDetailsProps> = (props) => {
+const BikeDetails: NextPage<IBikeDetailsProps> = ({ bike }) => {
   const router = useRouter()
-  const { bike, error } = props
-
-  if (error || !bike) {
-    return (
-      <DynamicError statusCode={error?.errorCode} title={error?.errorMessage} />
-    )
-  }
 
   return (
     <>
@@ -112,19 +100,24 @@ const BikeDetails: NextPage<IBikeDetailsProps> = (props) => {
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const id = context?.params?.id
   const res = await fetch(`${process.env.BIKES_API}/${id}`)
-  const data = res ? await res?.json() : undefined
+  const data = await res.json()
 
-  if (!data) {
+  const { error } = data
+  if (!res.ok) {
     return {
-      notFound: true
+      props: {
+        error: {
+          statusCode: res.status,
+          message: error
+        }
+      }
     }
   }
 
-  const { bike, error } = data
+  const { bike } = data
   return {
     props: {
-      bike: bike ?? null,
-      error: res.ok ? null : { errorCode: res?.status, errorMessage: error }
+      bike
     }
   }
 }

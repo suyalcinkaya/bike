@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
-const DynamicError = dynamic(() => import('next/error'))
 
 // --- Components
 import SearchInput from 'components/SearchInput/SearchInput'
@@ -23,8 +22,6 @@ export interface IInitialBikesData {
 interface IHomeProps {
   initialBikesData: IInitialBikesData
   initialCountData: IInitialCountData
-  bikesError: { errorCode: number; errorMessage: string }
-  countError: { errorCode: number; errorMessage: string }
   initialLocation: string
   initialPage: number
 }
@@ -33,9 +30,7 @@ const Home: NextPage<IHomeProps> = ({
   initialBikesData,
   initialCountData,
   initialLocation,
-  initialPage,
-  bikesError,
-  countError
+  initialPage
 }) => {
   const router = useRouter()
   const [currentPage, setCurrentPage] = useState<number>(initialPage)
@@ -56,24 +51,6 @@ const Home: NextPage<IHomeProps> = ({
       )
     }
   }, [searchText, currentPage])
-
-  if (bikesError) {
-    return (
-      <DynamicError
-        statusCode={bikesError.errorCode}
-        title={bikesError.errorMessage}
-      />
-    )
-  }
-
-  if (countError) {
-    return (
-      <DynamicError
-        statusCode={countError.errorCode}
-        title={countError.errorMessage}
-      />
-    )
-  }
 
   const onFormSubmit = (value: string) => {
     setSearchText(value)
@@ -116,7 +93,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const locationQueryParam = location || DEFAULT_LOCATION
   // Reset the `page` query parameter if the `location` query paremeter does not present
-  const pageQueryParam = location && page ? page : DEFAULT_PAGE
+  const pageQueryParam = page ? page : DEFAULT_PAGE
 
   const [bikesDataRes, countDataRes] = await Promise.all([
     fetch(
@@ -135,31 +112,46 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     )
   ])
 
-  const bikesData = bikesDataRes ? await bikesDataRes?.json() : undefined
-  const countData = countDataRes ? await countDataRes?.json() : undefined
+  const [bikesData, countData] = await Promise.all([
+    bikesDataRes.json(),
+    countDataRes.json()
+  ])
 
-  if (!bikesData || !countData) {
+  const { error: bikesError } = bikesData
+  if (!bikesDataRes.ok) {
     return {
-      notFound: true
+      props: {
+        error: {
+          statusCode: bikesDataRes.status,
+          message: bikesError
+        }
+      }
     }
   }
 
-  const { bikes, error: bikesError } = bikesData
-  const { proximity, error: countError } = countData
+  const { error: countError } = countData
+  if (!countDataRes.ok) {
+    return {
+      props: {
+        error: {
+          statusCode: countDataRes.status,
+          message: countError
+        }
+      }
+    }
+  }
+
+  const { bikes = [] } = bikesData
+  const { proximity = 0 } = countData
+
   return {
     props: {
       initialBikesData: {
-        bikes: bikes ?? []
+        bikes
       },
       initialCountData: {
-        proximity: proximity ?? null
+        proximity
       },
-      bikesError: bikesDataRes.ok
-        ? null
-        : { errorCode: bikesDataRes.status, errorMessage: bikesError },
-      countError: countDataRes.ok
-        ? null
-        : { errorCode: countDataRes.status, errorMessage: countError },
       initialLocation: locationQueryParam,
       initialPage: Number(pageQueryParam)
     }
