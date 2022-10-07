@@ -1,10 +1,12 @@
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import useSWR from 'swr'
+const DynamicError = dynamic(() => import('next/error'))
 
 // --- Components
 import Status from 'components/Status/Status'
 import Pagination from 'components/Pagination/Pagination'
+const DynamicSkeleton = dynamic(() => import('components/Skeleton/Skeleton'))
 
 // --- Types
 import { IBikeListProps, IBike } from 'components/BikeList/BikeList.types'
@@ -44,7 +46,6 @@ const BikeList = ({
     }
   )
 
-  const DynamicError = dynamic(() => import('next/error'))
   if (bikesFetchError || bikesData?.error) {
     return (
       <DynamicError
@@ -56,8 +57,6 @@ const BikeList = ({
 
   if (bikesData?.bikes?.length === 0 && !isValidating)
     return <div>No data found!</div>
-
-  const DynamicSkeleton = dynamic(() => import('components/Skeleton/Skeleton'))
 
   return (
     <div className="overflow-x-auto relative border sm:rounded-lg">

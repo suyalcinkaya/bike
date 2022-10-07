@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
-import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
+import dynamic from 'next/dynamic'
+const DynamicError = dynamic(() => import('next/error'))
 
 // --- Components
 import SearchInput from 'components/SearchInput/SearchInput'
+const DynamicBikeList = dynamic(() => import('components/BikeList/BikeList'))
 
 // --- Types
 import type { NextPage, GetServerSideProps } from 'next'
@@ -55,7 +57,6 @@ const Home: NextPage<IHomeProps> = ({
     }
   }, [searchText, currentPage])
 
-  const DynamicError = dynamic(() => import('next/error'))
   if (bikesError) {
     return (
       <DynamicError
@@ -79,8 +80,6 @@ const Home: NextPage<IHomeProps> = ({
     // Reset the `currentPage` on form submit if the `searchText` has changed
     if (searchText !== value) setCurrentPage(DEFAULT_PAGE)
   }
-
-  const DynamicBikeList = dynamic(() => import('components/BikeList/BikeList'))
 
   return (
     <>

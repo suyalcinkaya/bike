@@ -1,6 +1,9 @@
 import dynamic from 'next/dynamic'
 import useSWR from 'swr'
 
+// --- Components
+const DynamicSkeleton = dynamic(() => import('components/Skeleton/Skeleton'))
+
 // --- Types
 import {
   IPaginationProps,
@@ -45,8 +48,6 @@ const Pagination = ({
       setCurrentPage((prevPage) => prevPage + 1)
     }
   }
-
-  const DynamicSkeleton = dynamic(() => import('components/Skeleton/Skeleton'))
 
   return (
     <div className="flex flex-col md:flex-row gap-4 items-center justify-between py-4 px-6 text-sm">
