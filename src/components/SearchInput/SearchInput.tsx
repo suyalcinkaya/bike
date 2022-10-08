@@ -20,7 +20,7 @@ const SearchInput = ({
         City
       </label>
       <div className="relative">
-        <div className="flex absolute inset-y-0 left-0 items-center pl-4 pointer-events-none">
+        <div className="flex items-center absolute inset-y-0 left-4 pointer-events-none">
           <svg
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
@@ -43,18 +43,19 @@ const SearchInput = ({
           </svg>
         </div>
         <input
+          ref={(element) => element?.focus?.()}
           type="search"
           id="city-search"
           name="search"
           className="input"
           placeholder="Amsterdam, Berlin, etc."
-          required
           defaultValue={defaultValue}
           disabled={isDisabled}
+          required
         />
         <button
           type="submit"
-          className="btn absolute right-2.5 bottom-2.5"
+          className="btn absolute right-[9px] bottom-[9px]"
           disabled={isDisabled}
         >
           Search

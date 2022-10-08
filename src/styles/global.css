@@ -47,11 +47,19 @@
 
 @layer components {
   .btn {
-    @apply flex flex-none items-center justify-between gap-x-1.5 text-sm leading-none font-medium enabled:bg-white disabled:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg cursor-pointer transition-all px-4 py-2.5 shadow-sm border border-gray-400 border-opacity-30 enabled:hover:border-opacity-50 enabled:hover:shadow;
+    @apply flex flex-none items-center justify-between gap-x-1.5 text-sm leading-none font-medium rounded-lg cursor-pointer transition-all px-4 py-2.5 shadow-sm border border-gray-400 border-opacity-30;
+    @apply enabled:bg-white enabled:hover:border-opacity-50 enabled:hover:shadow disabled:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .input {
-    @apply block p-4 pl-12 w-full text-sm bg-white rounded-lg border border-gray-300 enabled:focus:ring-blue-500 enabled:focus:border-blue-500 disabled:opacity-50 disabled:bg-gray-50;
+    @apply block p-4 pl-11 w-full text-sm bg-white rounded-lg border border-gray-300;
+    @apply enabled:focus:ring-blue-500 enabled:focus:border-blue-500 disabled:opacity-50 disabled:bg-gray-50;
+  }
+
+  .item-link {
+    @apply grid grid-cols-10 items-center py-4 px-6 bg-white text-sm border-b last:border-none transition-colors overflow-hidden;
+    @apply hover:cursor-pointer hover:bg-gray-50;
+    @apply focus:outline-none focus:bg-gray-50 focus:ring-2 focus:ring-inset focus:ring-blue-500;
   }
 }
 

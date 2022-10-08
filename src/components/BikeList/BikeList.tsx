@@ -54,10 +54,7 @@ const BikeList = ({
         {!isValidating &&
           bikesData?.bikes.map((bike) => (
             <Fragment key={bike.id}>
-              <DynamicLink
-                href={`/bike/${bike.id}`}
-                className="grid grid-cols-10 items-center py-4 px-6 bg-white text-sm border-b last:border-none hover:bg-gray-50 hover:cursor-pointer transition-colors"
-              >
+              <DynamicLink href={`/bike/${bike.id}`} className="item-link">
                 <span className="col-span-6 lg:col-span-4">
                   <span className="line-clamp-1 font-semibold">
                     {bike.title}

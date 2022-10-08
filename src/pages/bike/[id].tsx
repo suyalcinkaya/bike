@@ -102,13 +102,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const res = await fetch(`${process.env.BIKES_API}/${id}`)
   const data = await res.json()
 
-  const { error } = data
   if (!res.ok) {
     return {
       props: {
         error: {
           statusCode: res.status,
-          message: error
+          message: data.error
         }
       }
     }

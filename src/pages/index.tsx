@@ -53,9 +53,8 @@ const Home: NextPage<IHomeProps> = ({
   }, [searchText, currentPage])
 
   const onFormSubmit = (value: string) => {
+    if (searchText !== value) setCurrentPage(DEFAULT_PAGE) // Reset the `currentPage` on form submit if the `searchText` has changed
     setSearchText(value)
-    // Reset the `currentPage` on form submit if the `searchText` has changed
-    if (searchText !== value) setCurrentPage(DEFAULT_PAGE)
   }
 
   return (
@@ -117,25 +116,23 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     countDataRes.json()
   ])
 
-  const { error: bikesError } = bikesData
   if (!bikesDataRes.ok) {
     return {
       props: {
         error: {
           statusCode: bikesDataRes.status,
-          message: bikesError
+          message: bikesData.error
         }
       }
     }
   }
 
-  const { error: countError } = countData
   if (!countDataRes.ok) {
     return {
       props: {
         error: {
           statusCode: countDataRes.status,
-          message: countError
+          message: countData.error
         }
       }
     }
