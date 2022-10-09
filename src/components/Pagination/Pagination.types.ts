@@ -3,5 +3,5 @@ export interface IInitialCountData {
 }
 
 export interface IPaginationProps {
-  initialCountData: IInitialCountData
+  initialCountData?: IInitialCountData
 }

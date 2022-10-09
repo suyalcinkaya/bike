@@ -10,6 +10,6 @@ export interface IBike {
 }
 
 export interface IBikeListProps {
-  initialBikesData: IInitialBikesData
-  initialCountData: IInitialCountData
+  initialBikesData?: IInitialBikesData
+  initialCountData?: IInitialCountData
 }
