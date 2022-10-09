@@ -6,6 +6,7 @@ const DynamicLink = dynamic(() => import('next/link'))
 // --- Components
 import Status from 'components/Status/Status'
 import Pagination from 'components/Pagination/Pagination'
+const DynamicSkeleton = dynamic(() => import('components/Skeleton/Skeleton'))
 
 // --- Types
 import { IBikeListProps } from 'components/BikeList/BikeList.types'
@@ -45,6 +46,15 @@ const BikeList = ({ initialBikesData, initialCountData }: IBikeListProps) => {
     <>
       <div className="flex flex-col overflow-hidden bg-white md:rounded-lg border md:border-gray-200 -mx-8 md:mx-0">
         <Pagination initialCountData={initialCountData} />
+        {!bikesData?.bikes &&
+          [...Array(6)].map((index) => (
+            <div
+              key={index}
+              className="item-link grid-cols-1 border-b-0 border-t py-5"
+            >
+              <DynamicSkeleton />
+            </div>
+          ))}
         {bikesData?.bikes.map((bike) => (
           <Fragment key={bike.id}>
             <DynamicLink href={`/bike/${bike.id}`} className="item-link">

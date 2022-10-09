@@ -1,8 +1,9 @@
+import { Suspense } from 'react'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 
 // --- Components
-import SearchInput from 'components/SearchInput/SearchInput'
+import FilterForm from 'components/FilterForm/FilterForm'
 const DynamicBikeList = dynamic(() => import('components/BikeList/BikeList'))
 
 // --- Types
@@ -19,8 +20,8 @@ export interface IInitialBikesData {
 }
 
 interface IHomeProps {
-  initialBikesData: IInitialBikesData
-  initialCountData: IInitialCountData
+  initialBikesData?: IInitialBikesData
+  initialCountData?: IInitialCountData
 }
 
 const Home: NextPage<IHomeProps> = ({ initialBikesData, initialCountData }) => {
@@ -34,7 +35,7 @@ const Home: NextPage<IHomeProps> = ({ initialBikesData, initialCountData }) => {
         }`}</title>
       </Head>
       <div className="flex flex-col gap-8">
-        <SearchInput />
+        <FilterForm />
         {searchText && currentPage && (
           <DynamicBikeList
             initialBikesData={initialBikesData}
