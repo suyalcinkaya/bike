@@ -115,7 +115,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       initialCountData: {
         proximity
       },
-      // For the Context Provider
+      // For the ContextProvider
       initialLocation: locationQueryParam,
       initialPage: Number(pageQueryParam)
     }
