@@ -9,16 +9,19 @@ import PageLayout from 'layouts/PageLayout'
 import type { AppProps } from 'next/app'
 
 // --- Others
+import { ContextProvider } from 'providers/ContextProvider'
 import { fetcher } from 'utils/utils'
 import 'styles/global.css'
 
 interface CustomPageProps {
   error: { statusCode: number; message?: string } | null | undefined
   statusCode?: number
+  initialLocation: string
+  initialPage: number
 }
 
 function MyApp({ Component, pageProps }: AppProps<CustomPageProps>) {
-  const { error, statusCode } = pageProps
+  const { error, statusCode, initialLocation, initialPage, ...rest } = pageProps
   if (error) {
     return (
       <DynamicErrorPage statusCode={error.statusCode} title={error.message} />
@@ -34,11 +37,17 @@ function MyApp({ Component, pageProps }: AppProps<CustomPageProps>) {
       value={{
         fetcher,
         onError: (error) => <DynamicErrorPage statusCode={error.status} />,
-        revalidateOnFocus: false
+        revalidateOnFocus: false,
+        keepPreviousData: true
       }}
     >
       <PageLayout>
-        <Component {...pageProps} />
+        <ContextProvider
+          initialLocation={initialLocation}
+          initialPage={initialPage}
+        >
+          <Component {...rest} />
+        </ContextProvider>
       </PageLayout>
     </SWRConfig>
   )

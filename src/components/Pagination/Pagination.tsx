@@ -1,8 +1,4 @@
-import dynamic from 'next/dynamic'
 import useSWR from 'swr'
-
-// --- Components
-const DynamicSkeleton = dynamic(() => import('components/Skeleton/Skeleton'))
 
 // --- Types
 import {
@@ -11,18 +7,25 @@ import {
 } from 'components/Pagination/Pagination.types'
 
 // --- Others
+import { useContextProvider } from 'providers/ContextProvider'
 import { ITEMS_PER_PAGE } from 'utils/utils'
 
-const Pagination = ({
-  initialCountData,
-  searchText,
-  currentPage,
-  setCurrentPage
-}: IPaginationProps) => {
-  const { data: countData, isValidating } = useSWR<IInitialCountData, Error>(
-    `${
-      process.env.NEXT_PUBLIC_COUNT_API
-    }?stolenness=proximity&location=${encodeURIComponent(searchText)}`,
+const Pagination = ({ initialCountData }: IPaginationProps) => {
+  const {
+    shouldFetchCountData,
+    shouldFetchBikesData,
+    setShouldFetchBikesData,
+    searchText,
+    currentPage,
+    setCurrentPage
+  } = useContextProvider()
+
+  const { data: countData } = useSWR<IInitialCountData, Error>(
+    shouldFetchCountData && searchText
+      ? `${
+          process.env.NEXT_PUBLIC_COUNT_API
+        }?stolenness=proximity&location=${encodeURIComponent(searchText)}`
+      : null,
     {
       fallbackData: initialCountData
     }
@@ -34,29 +37,21 @@ const Pagination = ({
 
   const onPreviousClick = () => {
     if (currentPage > 1) {
+      if (!shouldFetchBikesData) setShouldFetchBikesData(true)
       setCurrentPage((prevPage) => prevPage - 1)
     }
   }
 
   const onNextClick = () => {
     if (end !== totalItems) {
+      if (!shouldFetchBikesData) setShouldFetchBikesData(true)
       setCurrentPage((prevPage) => prevPage + 1)
     }
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 items-center justify-between py-4 px-6 text-sm">
-      {(!countData || isValidating) && (
-        <>
-          <div className="w-1/5">
-            <DynamicSkeleton />
-          </div>
-          <div className="w-1/5">
-            <DynamicSkeleton />
-          </div>
-        </>
-      )}
-      {countData && !isValidating && (
+    <div className="flex flex-col md:flex-row gap-4 items-center justify-between py-2.5 px-6 text-sm">
+      {countData && (
         <>
           <span>
             Showing <b>{start}</b> to <b>{end}</b> of <b>{totalItems}</b>{' '}
