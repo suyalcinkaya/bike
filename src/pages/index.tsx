@@ -1,6 +1,4 @@
-import { useState, useEffect } from 'react'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 
 // --- Components
@@ -13,6 +11,7 @@ import { IBike } from 'components/BikeList/BikeList.types'
 import { IInitialCountData } from 'components/Pagination/Pagination.types'
 
 // --- Others
+import { useContextProvider } from 'providers/ContextProvider'
 import { DEFAULT_PAGE, DEFAULT_LOCATION } from 'utils/utils'
 
 export interface IInitialBikesData {
@@ -22,40 +21,10 @@ export interface IInitialBikesData {
 interface IHomeProps {
   initialBikesData: IInitialBikesData
   initialCountData: IInitialCountData
-  initialLocation: string
-  initialPage: number
 }
 
-const Home: NextPage<IHomeProps> = ({
-  initialBikesData,
-  initialCountData,
-  initialLocation,
-  initialPage
-}) => {
-  const router = useRouter()
-  const [currentPage, setCurrentPage] = useState<number>(initialPage)
-  const [searchText, setSearchText] = useState<string>(initialLocation)
-
-  useEffect(() => {
-    if (searchText && currentPage) {
-      router.push(
-        {
-          pathname: '/',
-          query: {
-            location: searchText,
-            page: currentPage
-          }
-        },
-        undefined,
-        { shallow: true }
-      )
-    }
-  }, [searchText, currentPage])
-
-  const onFormSubmit = (value: string) => {
-    if (searchText !== value) setCurrentPage(DEFAULT_PAGE) // Reset the `currentPage` on form submit if the `searchText` has changed
-    setSearchText(value)
-  }
+const Home: NextPage<IHomeProps> = ({ initialBikesData, initialCountData }) => {
+  const { searchText, currentPage } = useContextProvider()
 
   return (
     <>
@@ -65,12 +34,9 @@ const Home: NextPage<IHomeProps> = ({
         }`}</title>
       </Head>
       <div className="flex flex-col gap-8">
-        <SearchInput defaultValue={searchText} onFormSubmit={onFormSubmit} />
+        <SearchInput />
         {searchText && currentPage && (
           <DynamicBikeList
-            searchText={searchText}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
             initialBikesData={initialBikesData}
             initialCountData={initialCountData}
           />
@@ -149,6 +115,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       initialCountData: {
         proximity
       },
+      // For the ContextProvider
       initialLocation: locationQueryParam,
       initialPage: Number(pageQueryParam)
     }

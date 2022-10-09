@@ -4,7 +4,4 @@ export interface IInitialCountData {
 
 export interface IPaginationProps {
   initialCountData: IInitialCountData
-  searchText: string
-  currentPage: number
-  setCurrentPage: React.Dispatch<React.SetStateAction<number>>
 }

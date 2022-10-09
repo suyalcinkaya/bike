@@ -12,7 +12,4 @@ export interface IBike {
 export interface IBikeListProps {
   initialBikesData: IInitialBikesData
   initialCountData: IInitialCountData
-  searchText: string
-  currentPage: number
-  setCurrentPage: React.Dispatch<React.SetStateAction<number>>
 }
