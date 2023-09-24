@@ -1,7 +1,7 @@
 import { useContextProvider } from 'providers/ContextProvider'
 import { DEFAULT_PAGE } from 'utils/utils'
 
-const SearchInput = () => {
+const FilterForm = () => {
   const {
     shouldFetchBikesData,
     setShouldFetchBikesData,
@@ -49,4 +49,4 @@ const SearchInput = () => {
   )
 }
 
-export default SearchInput
+export default FilterForm

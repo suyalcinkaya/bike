@@ -1,4 +1,8 @@
 import useSWR from 'swr'
+import dynamic from 'next/dynamic'
+
+// --- Components
+const DynamicSkeleton = dynamic(() => import('components/Skeleton/Skeleton'))
 
 // --- Types
 import {
@@ -51,6 +55,16 @@ const Pagination = ({ initialCountData }: IPaginationProps) => {
 
   return (
     <div className="flex flex-col md:flex-row gap-4 items-center justify-between py-2.5 px-6 text-sm">
+      {!countData && (
+        <div className="flex flex-col md:flex-row items-center gap-4 justify-between w-full py-3 md:py-2.5">
+          <div className="w-1/2 md:w-1/4">
+            <DynamicSkeleton />
+          </div>
+          <div className="w-1/2 md:w-1/4">
+            <DynamicSkeleton />
+          </div>
+        </div>
+      )}
       {countData && (
         <>
           <span>
